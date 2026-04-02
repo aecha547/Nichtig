@@ -725,7 +725,7 @@ const CRT = {
 };
 
 /* ══════════════════════════════════════════════════════
-   6 ATMOSPHERIC CANVAS SCENES
+   6 ATMOSPHERIC CANVAS SCENES (MASSIVE SCALING)
 ══════════════════════════════════════════════════════ */
 const Scene = {
   cx: null, W: 0, H: 0,
@@ -808,76 +808,134 @@ const Scene = {
   },
 
   SCENES: [
+    /* 0 — GEISTWALZER: Massive ghosts sweeping the screen */
     function(c, W, H, t) {
-      const cx = W*0.5, cy = H*0.48, r = W*0.12; const a = t*0.45;
+      const cx = W*0.5, cy = H*0.48, r = W*0.25; 
+      const a = t*0.45;
       const x1 = cx + Math.cos(a)*r, y1 = cy + Math.sin(a)*r*0.35;
       const x2 = cx + Math.cos(a+Math.PI)*r, y2 = cy + Math.sin(a+Math.PI)*r*0.35;
-      const g = c.createRadialGradient(cx, cy, 0, cx, cy, r*1.8);
-      g.addColorStop(0, 'rgba(138,155,174,0.06)'); g.addColorStop(1, 'transparent');
+      
+      const g = c.createRadialGradient(cx, cy, 0, cx, cy, W*0.6);
+      g.addColorStop(0, 'rgba(138,155,174,0.08)'); g.addColorStop(1, 'transparent');
       c.fillStyle = g; c.fillRect(0, 0, W, H);
-      c.strokeStyle = 'rgba(138,155,174,0.07)'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
-      if(Math.sin(t*4.8) > -0.55) this.ghost(c, x1, y1, 0.95, Math.sin(t*2.2)*2.2, 0.28);
-      this.ghost(c, x2, y2, 0.95, Math.sin(t*2.2+1.1)*2.2, 0.24);
-      c.fillStyle = 'rgba(138,155,174,0.02)'; c.beginPath(); c.ellipse(cx, cy+H*0.26, r*2.2, 8, 0, 0, TAU); c.fill();
+      
+      c.strokeStyle = 'rgba(138,155,174,0.1)'; c.lineWidth = 2.5; 
+      c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke();
+      
+      if(Math.sin(t*4.8) > -0.55) this.ghost(c, x1, y1, 2.2, Math.sin(t*2.2)*2.2, 0.28);
+      this.ghost(c, x2, y2, 2.2, Math.sin(t*2.2+1.1)*2.2, 0.24);
+      
+      c.fillStyle = 'rgba(138,155,174,0.02)'; c.beginPath(); c.ellipse(cx, cy+H*0.26, r*2.2, 12, 0, 0, TAU); c.fill();
     },
+
+    /* 1 — DER BEOBACHTER: Giant silhouette behind a huge window */
     function(c, W, H, t) {
-      const cx = W*0.5, cy = H*0.52;
-      this.ghost(c, cx, cy, 1.2, Math.sin(t*0.55)*1.8, 0.25);
-      c.strokeStyle = 'rgba(255,255,255,0.04)'; c.lineWidth = 2.5;
-      c.strokeRect(cx-55, cy-64, 110, 130); c.beginPath(); c.moveTo(cx, cy-64); c.lineTo(cx, cy+66); c.stroke(); c.beginPath(); c.moveTo(cx-55, cy+2); c.lineTo(cx+55, cy+2); c.stroke();
+      const cx = W*0.5, cy = H*0.55;
+      this.ghost(c, cx, cy+H*0.1, 3.5, Math.sin(t*0.55)*2.5, 0.25);
+      
+      c.strokeStyle = 'rgba(255,255,255,0.05)'; c.lineWidth = 4;
+      const fw = W*0.8, fh = H*0.85;
+      c.strokeRect(cx-fw/2, cy-fh/2, fw, fh); 
+      c.beginPath(); c.moveTo(cx, cy-fh/2); c.lineTo(cx, cy+fh/2); c.stroke(); 
+      c.beginPath(); c.moveTo(cx-fw/2, cy); c.lineTo(cx+fw/2, cy); c.stroke();
+      
       for(let i=0; i<4; i++) {
-        const fy = H*(0.7+i*0.07); const fx = cx + Math.sin(t*0.22+i*2)*W*0.2;
-        c.fillStyle = 'rgba(138,155,174,0.022)'; c.beginPath(); c.ellipse(fx, fy, W*0.35, 14, 0, 0, TAU); c.fill();
+        const fy = H*(0.6+i*0.1); const fx = cx + Math.sin(t*0.22+i*2)*W*0.3;
+        c.fillStyle = 'rgba(138,155,174,0.025)'; c.beginPath(); c.ellipse(fx, fy, W*0.45, H*0.15, 0, 0, TAU); c.fill();
       }
+      
       if(Math.sin(t*2.9) > 0.96) {
-        c.fillStyle = 'rgba(138,170,204,0.18)'; c.beginPath(); c.arc(cx-4.5, cy-38, 1.8, 0, TAU); c.fill(); c.beginPath(); c.arc(cx+4.5, cy-38, 1.8, 0, TAU); c.fill();
+        c.save(); c.translate(cx, cy+H*0.1); c.scale(3.5, 3.5);
+        c.fillStyle = 'rgba(138,170,204,0.3)';
+        c.beginPath(); c.arc(-2.8, -37, 1.5, 0, TAU); c.fill(); 
+        c.beginPath(); c.arc(2.8, -37, 1.5, 0, TAU); c.fill();
+        c.restore();
       }
     },
+
+    /* 2 — REGENGEDÄCHTNIS: Deep heavy rain, massive puddles */
     function(c, W, H, t) {
-      c.strokeStyle = 'rgba(138,155,174,0.18)'; c.lineWidth = 1.2;
-      for(let i=0; i<42; i++) {
-        const rx = (i*45 + t*225) % W; const ry = (i*91 + t*450) % H;
-        c.beginPath(); c.moveTo(rx, ry); c.lineTo(rx-1.5, ry+18); c.stroke();
+      c.strokeStyle = 'rgba(138,155,174,0.25)'; c.lineWidth = 2;
+      for(let i=0; i<60; i++) {
+        const rx = (i*65 + t*350) % W; const ry = (i*131 + t*650) % H;
+        c.beginPath(); c.moveTo(rx, ry); c.lineTo(rx-3, ry+35); c.stroke();
       }
-      for(let j=0; j<5; j++) {
-        const pr = (t*26 + j*38) % 72; const po = Math.max(0, 1 - pr/72)*0.12;
-        c.strokeStyle = `rgba(138,155,174,${po})`; c.lineWidth = 1; c.beginPath(); c.ellipse(W*(0.15+j*0.18), H*0.82, pr*2.4, pr*0.35, 0, 0, TAU); c.stroke();
+      for(let j=0; j<6; j++) {
+        const pr = (t*35 + j*45) % 120; const po = Math.max(0, 1 - pr/120)*0.15;
+        c.strokeStyle = `rgba(138,155,174,${po})`; c.lineWidth = 1.5; 
+        c.beginPath(); c.ellipse(W*(0.1+j*0.16), H*0.85, pr*3.5, pr*0.5, 0, 0, TAU); c.stroke();
       }
-      c.globalAlpha *= 0.55; this.ghost(c, W*0.5, H*0.54, 0.95, Math.sin(t)*0.8, 0.22); c.globalAlpha = 1;
-      c.fillStyle = 'rgba(138,155,174,0.02)'; c.fillRect(0, H*0.85, W, H*0.15);
+      c.globalAlpha *= 0.65; this.ghost(c, W*0.5, H*0.6, 2.8, Math.sin(t)*1.5, 0.18); c.globalAlpha = 1;
+      c.fillStyle = 'rgba(138,155,174,0.03)'; c.fillRect(0, H*0.75, W, H*0.25);
     },
+
+    /* 3 — DIE TÄNZERIN: Scaled up, particles travel further */
     function(c, W, H, t) {
-      const x = W*0.5, y = H*0.48; const rot = Math.sin(t*0.38)*0.28;
-      const g = c.createRadialGradient(x, H*0.2, 0, x, H*0.2, W*0.35); g.addColorStop(0, 'rgba(196,175,87,0.035)'); g.addColorStop(1, 'transparent'); c.fillStyle = g; c.fillRect(0, 0, W, H);
-      c.save(); c.translate(x, y); c.rotate(rot);
+      const x = W*0.5, y = H*0.55; const rot = Math.sin(t*0.38)*0.28;
+      const g = c.createRadialGradient(x, H*0.2, 0, x, H*0.2, W*0.6); 
+      g.addColorStop(0, 'rgba(196,175,87,0.035)'); g.addColorStop(1, 'transparent'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+      
+      c.save(); c.translate(x, y); c.scale(2.6, 2.6); c.rotate(rot);
       c.fillStyle = 'rgba(155,172,189,0.22)'; c.beginPath(); c.moveTo(0,-24); c.bezierCurveTo(-8,-18,-6,4,-3,14); c.lineTo(3,14); c.bezierCurveTo(6,4,8,-18,0,-24); c.fill();
       c.beginPath(); c.ellipse(0, 13, 22, 6, 0, 0, TAU); c.fill(); c.beginPath(); c.arc(0, -27, 5.5, 0, TAU); c.fill();
       const aa = Math.sin(t*2)*0.95; c.strokeStyle = 'rgba(155,172,189,0.15)'; c.lineWidth = 1.8;
       c.beginPath(); c.moveTo(-3,-14); c.quadraticCurveTo(-20+aa*6, -22+Math.cos(t*2)*8, -28+aa*9, -16); c.stroke();
       c.beginPath(); c.moveTo(3,-14); c.quadraticCurveTo(20-aa*6, -22-Math.cos(t*2)*8, 28-aa*9, -16); c.stroke(); c.restore();
-      for(let i=0; i<15; i++) {
-        const px = x + Math.sin(t*2.5+i*0.9)*35; const py = y - (t*60+i*18)%120 + 25; const pa = Math.max(0, 1 - i/15)*0.35;
-        c.fillStyle = `rgba(170,188,206,${pa})`; c.beginPath(); c.arc(px, py, 1.8, 0, TAU); c.fill();
+      
+      for(let i=0; i<25; i++) {
+        const px = x + Math.sin(t*2.5+i*0.9)*70; 
+        const py = y - (t*80+i*25)%200 + 40; 
+        const pa = Math.max(0, 1 - i/25)*0.4;
+        c.fillStyle = `rgba(170,188,206,${pa})`; c.beginPath(); c.arc(px, py, 4.0, 0, TAU); c.fill();
       }
-      c.fillStyle = 'rgba(0,0,0,0.08)'; c.beginPath(); c.ellipse(x, y+48, 25, 6, 0, 0, TAU); c.fill();
+      c.fillStyle = 'rgba(0,0,0,0.12)'; c.beginPath(); c.ellipse(x, y+90, 60, 12, 0, 0, TAU); c.fill();
     },
+
+    /* 4 — VERLORENE WORTE: Massive responsive typography, wider spread */
     function(c, W, H, t) {
       const words = ['Leere', 'Stille', 'War er real?', 'Kommentar', 'Sie', 'Warum?', 'Erinnerung', 'Verschwunden', 'Ich war hier'];
-      c.font = '22px "Cormorant Garamond", serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.font = 'clamp(30px, 5vw, 60px) "Cormorant Garamond", serif'; 
+      c.textAlign = 'center'; c.textBaseline = 'middle';
       for(let i=0; i<words.length; i++) {
-        const ph = t*0.18 + i*1.3; const wx = W*(0.14 + (Math.sin(ph*0.75+i)*0.5+0.5)*0.72); const wy = H*(0.1 + (Math.cos(ph*0.55+i*2)*0.5+0.5)*0.8);
-        const wo = 0.05 + 0.07 * Math.sin(ph*2+i); c.save(); c.translate(wx, wy); c.rotate(Math.sin(ph*0.3+i)*0.14);
+        const ph = t*0.2 + i*1.3; 
+        const wx = W*(0.5 + Math.sin(ph*0.75+i)*0.4); 
+        const wy = H*(0.5 + Math.cos(ph*0.55+i*2)*0.4);
+        const wo = 0.05 + 0.15 * Math.sin(ph*2+i); 
+        c.save(); c.translate(wx, wy); c.rotate(Math.sin(ph*0.3+i)*0.18);
         c.globalAlpha = wo; c.fillStyle = '#aabbcc'; c.fillText(words[i], 0, 0); c.restore();
       }
       c.globalAlpha = 1;
     },
+
+    /* 5 — ABWESENHEIT: Scaled up chair, massive ghost rising */
     function(c, W, H, t) {
-      const x = W*0.5, y = H*0.5; const pu = 0.45 + 0.35 * Math.sin(t*0.45);
-      c.strokeStyle = 'rgba(138,155,174,0.14)'; c.lineWidth = 2.2; c.beginPath(); c.moveTo(x-22, y+14); c.lineTo(x-22, y+52); c.moveTo(x+22, y+14); c.lineTo(x+22, y+52); c.moveTo(x-22, y+14); c.lineTo(x+22, y+14); c.moveTo(x-22, y-30); c.lineTo(x-22, y+14); c.moveTo(x+22, y-30); c.lineTo(x+22, y+14); c.moveTo(x-22, y-30); c.lineTo(x+22, y-30); c.stroke();
-      const yOff = -((t*11) % 60); const ga = Math.max(0, 1 - Math.abs(yOff)/60) * pu;
-      c.globalAlpha *= ga * 0.65; this.ghost(c, x, y+yOff, 0.9, 0, 0.2); c.globalAlpha = 1;
-      const g = c.createRadialGradient(x, y, 0, x, y, W*0.25); g.addColorStop(0, 'rgba(138,155,174,'+(0.02*pu)+')'); g.addColorStop(1, 'transparent'); c.fillStyle = g; c.fillRect(0, 0, W, H);
-      const to = 0.035 + 0.025 * Math.sin(t*0.28); c.globalAlpha = to; c.font = '20px "Cormorant Garamond", serif'; c.fillStyle = '#aabbcc'; c.textAlign = 'center'; c.fillText('Er war hier.', x, y+H*0.38); c.globalAlpha = 1;
+      const x = W*0.5, y = H*0.55; const pu = 0.45 + 0.35 * Math.sin(t*0.45);
+      const s = 2.4; 
+      c.strokeStyle = 'rgba(138,155,174,0.18)'; c.lineWidth = 3; 
+      c.beginPath(); 
+      c.moveTo(x-22*s, y+14*s); c.lineTo(x-22*s, y+52*s); 
+      c.moveTo(x+22*s, y+14*s); c.lineTo(x+22*s, y+52*s); 
+      c.moveTo(x-22*s, y+14*s); c.lineTo(x+22*s, y+14*s); 
+      c.moveTo(x-22*s, y-30*s); c.lineTo(x-22*s, y+14*s); 
+      c.moveTo(x+22*s, y-30*s); c.lineTo(x+22*s, y+14*s); 
+      c.moveTo(x-22*s, y-30*s); c.lineTo(x+22*s, y-30*s); 
+      c.stroke();
+      
+      const yOff = -((t*15) % 120); 
+      const ga = Math.max(0, 1 - Math.abs(yOff)/120) * pu;
+      c.globalAlpha *= ga * 0.7; 
+      this.ghost(c, x, y+yOff, 2.6, 0, 0.25); 
+      c.globalAlpha = 1;
+      
+      const g = c.createRadialGradient(x, y, 0, x, y, W*0.4); 
+      g.addColorStop(0, 'rgba(138,155,174,'+(0.03*pu)+')'); 
+      g.addColorStop(1, 'transparent'); 
+      c.fillStyle = g; c.fillRect(0, 0, W, H);
+      
+      const to = 0.04 + 0.03 * Math.sin(t*0.28); c.globalAlpha = to; 
+      c.font = 'clamp(28px, 4vw, 42px) "Cormorant Garamond", serif'; 
+      c.fillStyle = '#aabbcc'; c.textAlign = 'center'; 
+      c.fillText('Er war hier.', x, y+H*0.42); c.globalAlpha = 1;
     }
   ]
 };
